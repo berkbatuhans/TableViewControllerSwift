@@ -10,9 +10,12 @@ import UIKit
 
 class DetailVC: UIViewController {
     @IBOutlet weak var lblCities : UILabel!
+    
+    var cities: CitiesModel?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        lblCities.text = "\((cities?.name)!) - \((cities?.plaka)!)"
         // Do any additional setup after loading the view.
     }
     

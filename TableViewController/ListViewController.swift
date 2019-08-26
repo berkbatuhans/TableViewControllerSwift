@@ -95,11 +95,11 @@ class ListViewController: UITableViewController {
 
                 }
         }
-        self.tableView.allowsSelection = false
+        //self.tableView.allowsSelection = false
         
     }
-    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //tableView.deselectRow(at: indexPath, animated: true)
         performSegue(withIdentifier: "showdetail", sender: self)
     }
     override func didReceiveMemoryWarning() {
@@ -165,15 +165,18 @@ class ListViewController: UITableViewController {
 //    }
  
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        if let destination = segue.destination as? DetailVC {
+            
+            destination.cities = sehirler[(tableView.indexPathForSelectedRow?.row)!]
+            tableView.deselectRow(at: tableView.indexPathForSelectedRow!, animated: true)
+        }
     }
-    */
+ 
 
 }
 
