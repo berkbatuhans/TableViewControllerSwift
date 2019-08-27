@@ -199,7 +199,7 @@ extension String {
 
 extension ListViewController : UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        sehirlerSearch = sehirler.filter({$0.name.prefix(searchText.count) == searchText})
+        sehirlerSearch = sehirler.filter({$0.name.lowercased().prefix(searchText.count) == searchText.lowercased()})
         searching = true
         tableView.reloadData()
     }
