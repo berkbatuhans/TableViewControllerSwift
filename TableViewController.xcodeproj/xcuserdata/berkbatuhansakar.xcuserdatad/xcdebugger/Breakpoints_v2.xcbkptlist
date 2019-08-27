@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TableViewController/ListViewController.swift"
-            timestampString = "588551458.460868"
+            timestampString = "588627586.631297"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "51"
-            endingLineNumber = "51"
+            startingLineNumber = "54"
+            endingLineNumber = "54"
             landmarkName = "insertCity(_:)"
             landmarkType = "7">
          </BreakpointContent>

@@ -17,9 +17,12 @@ struct CellData {
 class ListViewController: UITableViewController {
     
     
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var data = [CellData]()
     var sehirler = [CitiesModel]() //["İstanbul","Ankara","Adana"]
+    var sehirlerSearch = [CitiesModel]()
+    var searching = false
     @IBAction func insertCity(_ sender: UIBarButtonItem) {
         print("Ekleme Butonuna basıldı")
         
@@ -38,7 +41,7 @@ class ListViewController: UITableViewController {
         let addAction = UIAlertAction(title: "Ekle", style: .default) { (action) in
             let textField = controller.textFields!.first
             
-            self.sehirler.insert(CitiesModel.init(name: textField!.text!, plaka: 60), at: 0)
+            self.sehirler.insert(CitiesModel.init(plaka: 60, name: textField!.text!), at: 0)
             self.tableView.reloadData()
         }
         
@@ -60,23 +63,8 @@ class ListViewController: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
         
-        AF.request("https://gist.githubusercontent.com/serong/9b25594a7b9d85d3c7f7/raw/9904724fdf669ad68c07ab79af84d3a881ff8859/iller.json",method: .get).responseJSON { response in
-//            print("Request: \(String(describing: response.request))")   // original url request
-//            print("Response: \(String(describing: response.response))") // http url response
-//            print("Result: \(response.result)")                         // response serialization result
-            
-//            switch response.result {
-//            case .success(let value):
-//                if let json = value as? [String: Any] {
-//                    print(json)
-//                }
-//            case .failure(let error):
-//                print(error)
-//            }
-//            if let json = response.dat {
-//                print("JSON: \(json)") // serialized json response
-//            }
-            
+        AF.request("https://kocakrecep.com/api/v1/Get/",method: .get).responseJSON { response in
+
             if let data = response.data, let _ = String(data: data, encoding: .utf8) {
                     //print("Data: \(utf8Text)") // original server data as UTF8 string
                     //let json = try! JSONDecoder().decode([Cities].self, from: response.data!)
@@ -85,8 +73,8 @@ class ListViewController: UITableViewController {
                     print(cities ?? "")
                 cities?.forEach({ (sehir) in
                         
-                        let (key, value) = sehir
-                        self.sehirler.append(CitiesModel.init(name: value, plaka: Int(key)!))
+                    
+                    self.sehirler.append(CitiesModel.init(plaka: sehir.plaka, name: sehir.name))
                         self.sehirler.sort(by: { $0.plaka < $1.plaka })
                         self.tableView.reloadData()
                     })
@@ -113,7 +101,12 @@ class ListViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return sehirler.count
+        if searching {
+            return sehirlerSearch.count
+        } else {
+            return sehirler.count
+        }
+        
     }
 
     
@@ -123,8 +116,15 @@ class ListViewController: UITableViewController {
         // Configure the cell...
         //cell.textLabel?.text = "Çalışcakmı"
         // Yukarıda return değerlerini önce 1 arttır.
-        cell.textLabel?.text =  self.sehirler[indexPath.row].name?.capitalizingFirstLetter()
-        cell.detailTextLabel?.text = String(self.sehirler[indexPath.row].plaka)
+        if searching {
+            cell.textLabel?.text = self.sehirlerSearch[indexPath.row].name.capitalizingFirstLetter()
+            cell.detailTextLabel?.text = String(self.sehirlerSearch[indexPath.row].plaka)
+        } else {
+            cell.textLabel?.text =  self.sehirler[indexPath.row].name.capitalizingFirstLetter()
+            cell.detailTextLabel?.text = String(self.sehirler[indexPath.row].plaka)
+            
+        }
+        
         return cell
     }
  
@@ -172,7 +172,14 @@ class ListViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let destination = segue.destination as? DetailVC {
             
-            destination.cities = sehirler[(tableView.indexPathForSelectedRow?.row)!]
+            if searching {
+                destination.cities = sehirlerSearch[(tableView.indexPathForSelectedRow?.row)!]
+            } else {
+                
+                destination.cities = sehirler[(tableView.indexPathForSelectedRow?.row)!]
+            }
+            
+            
             tableView.deselectRow(at: tableView.indexPathForSelectedRow!, animated: true)
         }
     }
@@ -187,5 +194,13 @@ extension String {
     
     mutating func capitalizeFirstLetter() {
         self = self.capitalizingFirstLetter()
+    }
+}
+
+extension ListViewController : UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        sehirlerSearch = sehirler.filter({$0.name.prefix(searchText.count) == searchText})
+        searching = true
+        tableView.reloadData()
     }
 }
